@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       //associa o USER ao OBJECTIVES
-      Objectives.hasMany(models.User, {
+      Objectives.belongsTo(models.User, {
         foreignKey: "User_Id"
       })
     }

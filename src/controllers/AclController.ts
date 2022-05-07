@@ -58,6 +58,18 @@ class AclController {
 
     return res.status(200).json("Delete was sucessfull");
   }
+
+  static async restore(req: express.Request, res: express.Response) {
+    const { id } = req.params;
+
+    await database.User.restore({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    return res.status(200).json("the user was restored sucessfully");
+  }
 }
 
 export default AclController;

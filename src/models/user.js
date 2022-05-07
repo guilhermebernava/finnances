@@ -9,6 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       //associa a FK dele a trabalha OBJECTIVES
+      User.hasMany(models.Objectives, {
+        foreignKey: "objectives_id",
+      });
     }
   }
   User.init(
@@ -18,12 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       profilePicture: DataTypes.STRING,
       role: DataTypes.STRING,
-      deleteAt: DataTypes.DATE
     },
     {
       sequelize,
+    modelName: 'User',
       paranoid: true,
-      modelName: "User",
     }
   );
   return User;
