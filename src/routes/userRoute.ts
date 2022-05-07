@@ -4,6 +4,7 @@ import AclController from "../controllers/AclController";
 const router = Router();
 
 router.get("/users", AclController.getAllUsers);
+router.get("/user", AclController.getByName);
 router.get("/user/:id", AclController.getById);
 router.post("/user", AclController.post);
 router.put("/user/:id", AclController.put);
