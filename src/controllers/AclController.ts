@@ -19,13 +19,17 @@ class AclController {
 
   static async post(req: express.Request, res: express.Response) {
     const { name, email, password, role } = req.body;
-    const user = await database.User.create({
-      name: name,
-      email: email,
-      password: password,
-      role: role,
-    });
-    return res.status(201).json(user);
+    try {
+      const user = await database.User.create({
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      });
+      return res.status(201).json(user);
+    } catch (err) {
+      return res.status(400).json(err.message);
+    }
   }
 
   static async put(req: express.Request, res: express.Response) {

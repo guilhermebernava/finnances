@@ -16,15 +16,35 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      name: DataTypes.STRING,
-      email: DataTypes.STRING,
+      name: {
+        type: DataTypes.STRING,
+        validate: {
+          //custom validation
+          nameValidator: function (name) {
+            if (name.length < 3)
+              throw new Error("name have to has more than 4 Caracters");
+          },
+        },
+      },
+      //dentro das propriedades podemos passar o VALIDATE
+      email: {
+        type: DataTypes.STRING,
+        //ele tem vários tipos de validações padrão e ainda podemos criar
+        //nossas proprias validações, lembrando que ele joga um ERRO COM THROW
+        validate: {
+          isEmail: {
+            args: true,
+            msg: "INVALID EMAIL",
+          },
+        },
+      },
       password: DataTypes.STRING,
       profilePicture: DataTypes.STRING,
       role: DataTypes.STRING,
     },
     {
       sequelize,
-    modelName: 'User',
+      modelName: "User",
       paranoid: true,
     }
   );
