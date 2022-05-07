@@ -1,9 +1,11 @@
 import { Router } from "express";
+import roles from "../middlewares/Roles";
 import AclController from "../controllers/AclController";
+import auth from "../middlewares/Auth";
 
 const router = Router();
 
-router.get("/users", AclController.getAllUsers);
+router.get("/users", auth, roles('ADMIN'), AclController.getAllUsers);
 router.get("/user", AclController.getByName);
 router.get("/user/:id", AclController.getById);
 router.post("/user", AclController.post);
