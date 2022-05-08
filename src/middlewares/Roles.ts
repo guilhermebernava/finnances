@@ -8,9 +8,12 @@ const roles = (validRole: string) => {
     res: express.Response,
     next: express.NextFunction
   ) => {
+    //pega o TOKEN do LOCALS
     const token = res.locals.token;
 
+    //decoda o TOKEN
     const tokenDecoded = jwt_decode<any>(token);
+    //pega o valor do token
     const role: string = tokenDecoded.role;
 
     if (!isValidRole(role.toUpperCase())) {
@@ -23,6 +26,7 @@ const roles = (validRole: string) => {
         .json({ message: "you don't have this perimission" });
     }
 
+    //se a role for valida ele vai ir pro ENDPOINT
     next();
   };
 };

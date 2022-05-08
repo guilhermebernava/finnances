@@ -44,20 +44,29 @@ class AclController {
     //criando HASH da senha para salvar no banco de dados
     const encryptedPassword = await bcrypt.hash(password, 12);
     try {
+
+      //criando o USER
       const user = await database.User.create({
         name: name,
         email: email,
         password: encryptedPassword,
         role: role,
       });
+
+      //gerando o TOKEN
       const token = JWT.generateJWT({
         id: user.id,
         email: user.email,
         role: user.role,
         name: user.name,
       });
+
+      //criando LINK para enviar no EMAIL
       const link = `${process.env.URL}/user/verify_email/` + token;
+
+      //mandando email
       await sendEmail(user, link);
+
       return res.status(201).json({
         user: user,
       });
@@ -116,6 +125,7 @@ class AclController {
   }
 
   static async verifyEmail(req: express.Request, res: express.Response) {
+    //pega o TOKEN dos parametros da REQUEST
     const { token } = req.params;
 
     const validToken = await JWT.verifyToken(token);
