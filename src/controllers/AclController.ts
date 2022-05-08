@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt_decode from "jwt-decode";
-import { sendEmail } from "../services/email";
+import { sendEmail, resetPassword } from "../services/email";
 import JWT from "../services/JWT";
 const database = require("../models/");
 const { Op } = require("sequelize");
@@ -44,7 +44,6 @@ class AclController {
     //criando HASH da senha para salvar no banco de dados
     const encryptedPassword = await bcrypt.hash(password, 12);
     try {
-
       //criando o USER
       const user = await database.User.create({
         name: name,
@@ -144,6 +143,63 @@ class AclController {
     );
 
     if (emailVerified === 0) {
+      return res.status(200).json("ERROR OCURRIED!");
+    }
+
+    return res.status(200).json("sucess");
+  }
+
+  static async forgotPassword(req: express.Request, res: express.Response) {
+    const { email } = req.body;
+
+    if (email == null) return res.status(400).json("enter a valid email");
+
+    const user = await database.User.findOne({
+      where: {
+        email: email,
+      },
+    });
+
+    if (user == null) return res.status(400).json("enter a valid email");
+
+    //gerando o TOKEN
+    const token = JWT.generateJWT({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    });
+
+    //criando LINK para enviar no EMAIL
+    const link = `${process.env.URL}/user/change_password/` + token;
+
+    await resetPassword(email, link);
+
+    return res.status(200).json(link);
+  }
+
+  static async changePassword(req: express.Request, res: express.Response) {
+    //pega o TOKEN dos parametros da REQUEST
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const validToken = await JWT.verifyToken(token);
+
+    if (validToken === null) return res.status(401).json("INVALID TOKEN");
+
+    const tokenDecoded = jwt_decode<any>(token);
+    const encryptedPassword = await bcrypt.hash(password, 12);
+
+    const changePassword = await database.User.update(
+      { password: encryptedPassword },
+      {
+        where: {
+          id: Number(tokenDecoded.id),
+        },
+      }
+    );
+
+    if (changePassword === 0) {
       return res.status(200).json("ERROR OCURRIED!");
     }
 
