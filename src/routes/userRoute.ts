@@ -5,10 +5,11 @@ import auth from "../middlewares/Auth";
 
 const router = Router();
 
-router.get("/users", auth, roles('ADMIN'), AclController.getAllUsers);
+router.get("/users", auth, roles("ADMIN"), AclController.getAllUsers);
 router.get("/user", AclController.getByName);
 router.get("/user/:id", AclController.getById);
 router.post("/user", AclController.post);
+router.get("/user/verify_email/:token", AclController.verifyEmail);
 router.put("/user/:id", AclController.put);
 router.delete("/user/:id", AclController.delete);
 router.put("/user/restore/:id", AclController.restore);

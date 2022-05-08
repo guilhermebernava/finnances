@@ -1,5 +1,8 @@
 import express from "express";
 import bcrypt from "bcrypt";
+import jwt_decode from "jwt-decode";
+import { sendEmail } from "../services/email";
+import JWT from "../services/JWT";
 const database = require("../models/");
 const { Op } = require("sequelize");
 
@@ -47,7 +50,17 @@ class AclController {
         password: encryptedPassword,
         role: role,
       });
-      return res.status(201).json(user);
+      const token = JWT.generateJWT({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+      });
+      const link = `${process.env.URL}/user/verify_email/` + token;
+      await sendEmail(user, link);
+      return res.status(201).json({
+        user: user,
+      });
     } catch (err) {
       return res.status(400).json(err.message);
     }
@@ -100,6 +113,31 @@ class AclController {
     });
 
     return res.status(200).json("the user was restored sucessfully");
+  }
+
+  static async verifyEmail(req: express.Request, res: express.Response) {
+    const { token } = req.params;
+
+    const validToken = await JWT.verifyToken(token);
+
+    if (validToken === null) return res.status(401).json("INVALID TOKEN");
+
+    const tokenDecoded = jwt_decode<any>(token);
+
+    const emailVerified = await database.User.update(
+      { emailVerified: true },
+      {
+        where: {
+          id: Number(tokenDecoded.id),
+        },
+      }
+    );
+
+    if (emailVerified === 0) {
+      return res.status(200).json("ERROR OCURRIED!");
+    }
+
+    return res.status(200).json("sucess");
   }
 }
 

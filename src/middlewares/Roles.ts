@@ -1,7 +1,6 @@
-const jwt = require("jsonwebtoken");
 import jwt_decode from "jwt-decode";
 import express from "express";
-import { isValidRole } from "../services/Roles";
+import { isValidRole } from "../services/roles";
 
 const roles = (validRole: string) => {
   return (

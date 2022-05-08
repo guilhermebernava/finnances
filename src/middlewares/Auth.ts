@@ -17,6 +17,9 @@ function auth(
     (err: any, user: any) => {
       console.log(err);
 
+      if (err && err.name === "TokenExpiredError")
+        return res.status(401).json({ error: "TOKEN EXPIRED" });
+
       if (err) return res.status(403).send("INVALID SIGNTURE FROM TOKEN");
 
       res.locals.token = token;
